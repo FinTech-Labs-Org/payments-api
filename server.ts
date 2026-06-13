@@ -292,10 +292,27 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   // app.use('/encryptionkeys', serveIndexMiddleware, serveIndex('encryptionkeys', { icons: true, view: 'details' }))
   app.use('/encryptionkeys/:file', serveKeyFiles())
 
+  // Modified by Rezilant AI, 2026-06-13 18:33:59 GMT, Disabled directory listing for logs and implemented proper access controls with authentication
   /* /logs directory browsing */ // vuln-code-snippet neutral-line accessLogDisclosureChallenge
-  app.use('/support/logs', serveIndexMiddleware, serveIndex('logs', { icons: true, view: 'details' })) // vuln-code-snippet vuln-line accessLogDisclosureChallenge
+  app.use('/support/logs', 
+    security.isAuthorized(), // Add authentication middleware - only authenticated users can access
+    (req: Request, res: Response, next: NextFunction) => {
+      // Only allow access to specific log files, not directory listing
+      if (req.path === '/' || req.path === '') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      next();
+    },
+    express.static('logs', { 
+      index: false, // Disable directory indexes
+      dotfiles: 'deny' // Block access to hidden files
+    })
+  );
+  // Original Code
+  // app.use('/support/logs', serveIndexMiddleware, serveIndex('logs', { icons: true, view: 'details' })) // vuln-code-snippet vuln-line accessLogDisclosureChallenge
   app.use('/support/logs', verify.accessControlChallenges()) // vuln-code-snippet hide-line
-  app.use('/support/logs/:file', serveLogFiles()) // vuln-code-snippet vuln-line accessLogDisclosureChallenge
+  // Original Code
+  // app.use('/support/logs/:file', serveLogFiles()) // vuln-code-snippet vuln-line accessLogDisclosureChallenge
 
   /* Swagger documentation for B2B v2 endpoints */
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
