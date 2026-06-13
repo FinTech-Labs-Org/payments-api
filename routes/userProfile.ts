@@ -51,6 +51,7 @@ export function getUserProfile () {
 
     let username = user.username
 
+    // Modified by Rezilant AI, 2026-06-13 17:55:29 GMT, Replaced unsafe eval() with HTML entity encoding to prevent Server-Side JavaScript Injection
     if (username?.match(/#{(.*)}/) !== null && utils.isChallengeEnabled(challenges.usernameXssChallenge)) {
       req.app.locals.abused_ssti_bug = true
       const code = username?.substring(2, username.length - 1)
@@ -58,22 +59,40 @@ export function getUserProfile () {
         if (!code) {
           throw new Error('Username is null')
         }
-        username = eval(code) // eslint-disable-line no-eval
+        // SAFE ALTERNATIVE: Use HTML entity encoding to prevent XSS and code injection
+        username = entities.encode(username)
       } catch (err) {
         username = '\\' + username
       }
     } else {
-      username = '\\' + username
+      // Always encode output to prevent XSS
+      username = entities.encode(username)
     }
 
-    const themeKey = config.get<string>('application.theme') as keyof typeof themes
+    // Original Code
+    // if (username?.match(/#{(.*)}/) !== null && utils.isChallengeEnabled(challenges.usernameXssChallenge)) {
+    //   req.app.locals.abused_ssti_bug = true
+    //   const code = username?.substring(2, username.length - 1)
+    //   try {
+    //     if (!code) {
+    //       throw new Error('Username is null')
+    //     }
+    //     username = eval(code) // eslint-disable-line no-eval
+    //   } catch (err) {
+    //     username = '\\' + username
+    //   }
+    // } else {
+    //   username = '\\' + username
+    // }
+
+    const themeKey = config.get&lt;string>('application.theme') as keyof typeof themes
     const theme = themes[themeKey] || themes['bluegrey-lightgreen']
 
     if (username) {
       template = template.replace(/_username_/g, username)
     }
     template = template.replace(/_emailHash_/g, security.hash(user?.email))
-    template = template.replace(/_title_/g, entities.encode(config.get<string>('application.name')))
+    template = template.replace(/_title_/g, entities.encode(config.get&lt;string>('application.name')))
     template = template.replace(/_favicon_/g, favicon())
     template = template.replace(/_bgColor_/g, theme.bgColor)
     template = template.replace(/_textColor_/g, theme.textColor)
@@ -88,7 +107,7 @@ export function getUserProfile () {
       const CSP = `img-src 'self' ${user?.profileImage}; script-src 'self' 'unsafe-eval'`
 
       challengeUtils.solveIf(challenges.usernameXssChallenge, () => {
-        return username && user?.profileImage.match(/;[ ]*script-src(.)*'unsafe-inline'/g) !== null && utils.contains(username, '<script>alert(`xss`)</script>')
+        return username && user?.profileImage.match(/;[ ]*script-src(.)*'unsafe-inline'/g) !== null && utils.contains(username, '&lt;script>alert(`xss`)&lt;/script>')
       })
 
       res.set({
