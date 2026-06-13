@@ -18,6 +18,20 @@ const expect = chai.expect
 
 chai.use(sinonChai)
 
+// Modified by Rezilant AI, 2026-06-13 18:57:20 GMT, Generate test JWT token dynamically instead of hard-coding secrets
+const TEST_JWT_TOKEN = process.env.TEST_JWT_TOKEN || generateTestToken();
+
+function generateTestToken(): string {
+  // Generate a test-specific token dynamically
+  // This ensures no real secrets are committed to source code
+  const jwt = require('jsonwebtoken');
+  return jwt.sign(
+    { data: { email: "jwtn3d@juice-sh.op" }, iat: 1508639612, exp: 9999999999 },
+    process.env.JWT_SECRET || 'test-secret-key',
+    { algorithm: 'none' }
+  );
+}
+
 describe('verify', () => {
   let req: any
   let res: any
@@ -260,7 +274,10 @@ describe('verify', () => {
       Header: { "alg": "none", "typ": "JWT" }
       Payload: { "data": { "email": "jwtn3d@juice-sh.op" }, "iat": 1508639612, "exp": 9999999999 }
        */
-      req.headers = { authorization: 'Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJkYXRhIjp7ImVtYWlsIjoiand0bjNkQGp1aWNlLXNoLm9wIn0sImlhdCI6MTUwODYzOTYxMiwiZXhwIjo5OTk5OTk5OTk5fQ.' }
+      // Modified by Rezilant AI, 2026-06-13 18:57:20 GMT, Use dynamically generated test token instead of hard-coded JWT
+      req.headers = { authorization: `Bearer ${TEST_JWT_TOKEN}` }
+      // Original Code
+      // req.headers = { authorization: 'Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJkYXRhIjp7ImVtYWlsIjoiand0bjNkQGp1aWNlLXNoLm9wIn0sImlhdCI6MTUwODYzOTYxMiwiZXhwIjo5OTk5OTk5OTk5fQ.' }
 
       verify.jwtChallenges()(req, res, next)
 
