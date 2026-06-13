@@ -10,6 +10,7 @@ import { challenges } from '../data/datacache'
 import * as security from '../lib/insecurity'
 import { type Review } from '../data/types'
 import * as db from '../data/mongodb'
+import { ObjectId } from 'mongodb' // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Added ObjectId import for secure ID validation
 
 const sleep = async (ms: number) => await new Promise(resolve => setTimeout(resolve, ms))
 
@@ -22,7 +23,15 @@ export function likeProductReviews () {
     }
 
     try {
-      const review = await db.reviewsCollection.findOne({ _id: id })
+      // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Added ObjectId validation to prevent NoSQL injection
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid ID format' })
+      }
+      const review = await db.reviewsCollection.findOne({ 
+        _id: new ObjectId(id) 
+      })
+      // Original Code
+      // const review = await db.reviewsCollection.findOne({ _id: id })
       if (!review) {
         return res.status(404).json({ error: 'Not found' })
       }
@@ -32,25 +41,40 @@ export function likeProductReviews () {
         return res.status(403).json({ error: 'Not allowed' })
       }
 
+      // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
       await db.reviewsCollection.update(
-        { _id: id },
+        { _id: new ObjectId(id) },
         { $inc: { likesCount: 1 } }
       )
+      // Original Code
+      // await db.reviewsCollection.update(
+      //   { _id: id },
+      //   { $inc: { likesCount: 1 } }
+      // )
 
       // Artificial wait for timing attack challenge
       await sleep(150)
       try {
-        const updatedReview: Review = await db.reviewsCollection.findOne({ _id: id })
+        // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
+        const updatedReview: Review = await db.reviewsCollection.findOne({ _id: new ObjectId(id) })
+        // Original Code
+        // const updatedReview: Review = await db.reviewsCollection.findOne({ _id: id })
         const updatedLikedBy = updatedReview.likedBy
         updatedLikedBy.push(user.data.email)
 
         const count = updatedLikedBy.filter(email => email === user.data.email).length
         challengeUtils.solveIf(challenges.timingAttackChallenge, () => count > 2)
 
+        // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
         const result = await db.reviewsCollection.update(
-          { _id: id },
+          { _id: new ObjectId(id) },
           { $set: { likedBy: updatedLikedBy } }
         )
+        // Original Code
+        // const result = await db.reviewsCollection.update(
+        //   { _id: id },
+        //   { $set: { likedBy: updatedLikedBy } }
+        // )
         res.json(result)
       } catch (err) {
         res.status(500).json(err)
