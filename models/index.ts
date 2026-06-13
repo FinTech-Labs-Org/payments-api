@@ -30,17 +30,35 @@ import { Sequelize, Transaction } from 'sequelize'
 let sequelize = createSequelize()
 
 function createSequelize (options?: { inMemory?: boolean }) {
-  return new Sequelize('database', 'username', 'password', {
-    dialect: 'sqlite',
-    retry: {
-      match: [/SQLITE_BUSY/],
-      name: 'query',
-      max: 5
-    },
-    transactionType: Transaction.TYPES.IMMEDIATE,
-    storage: options?.inMemory ? ':memory:' : 'data/juiceshop.sqlite',
-    logging: false
-  })
+  // Modified by Rezilant AI, 2026-06-13 18:57:20 GMT, Replaced hardcoded credentials with environment variables for security
+  return new Sequelize(
+    process.env.DB_NAME || 'database',
+    process.env.DB_USERNAME || 'username',
+    process.env.DB_PASSWORD || 'password',
+    {
+      dialect: 'sqlite',
+      retry: {
+        match: [/SQLITE_BUSY/],
+        name: 'query',
+        max: 5
+      },
+      transactionType: Transaction.TYPES.IMMEDIATE,
+      storage: options?.inMemory ? ':memory:' : 'data/juiceshop.sqlite',
+      logging: false
+    }
+  )
+  // Original Code
+  // return new Sequelize('database', 'username', 'password', {
+  //   dialect: 'sqlite',
+  //   retry: {
+  //     match: [/SQLITE_BUSY/],
+  //     name: 'query',
+  //     max: 5
+  //   },
+  //   transactionType: Transaction.TYPES.IMMEDIATE,
+  //   storage: options?.inMemory ? ':memory:' : 'data/juiceshop.sqlite',
+  //   logging: false
+  // })
 }
 
 function initModels (seq: Sequelize) {
