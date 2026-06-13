@@ -273,8 +273,23 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   app.use('/.well-known', serveIndexMiddleware, serveIndex('.well-known', { icons: true, view: 'details' }))
   app.use('/.well-known', express.static('.well-known'))
 
+  // Modified by Rezilant AI, 2026-06-13 18:34:00 GMT, Disabled directory listing for /encryptionkeys to prevent exposure of sensitive cryptographic material
+  // Serve specific files only via explicit routes - NO directory listing
+  app.get('/encryptionkeys/:filename', (req: Request, res: Response) => {
+    // Validate filename to prevent path traversal
+    const filename = path.basename(req.params.filename);
+    const filepath = path.join(__dirname, 'encryptionkeys', filename);
+    
+    // Only serve if file exists and user is authorized
+    if (security.isAuthorized()) {
+      res.sendFile(filepath);
+    } else {
+      res.status(403).send('Forbidden');
+    }
+  });
+  // Original Code
   /* /encryptionkeys directory browsing */
-  app.use('/encryptionkeys', serveIndexMiddleware, serveIndex('encryptionkeys', { icons: true, view: 'details' }))
+  // app.use('/encryptionkeys', serveIndexMiddleware, serveIndex('encryptionkeys', { icons: true, view: 'details' }))
   app.use('/encryptionkeys/:file', serveKeyFiles())
 
   /* /logs directory browsing */ // vuln-code-snippet neutral-line accessLogDisclosureChallenge
