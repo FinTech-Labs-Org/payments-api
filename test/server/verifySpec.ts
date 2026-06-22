@@ -274,7 +274,7 @@ describe('verify', () => {
       Header: { "alg": "none", "typ": "JWT" }
       Payload: { "data": { "email": "jwtn3d@juice-sh.op" }, "iat": 1508639612, "exp": 9999999999 }
        */
-      // Modified by Rezilant AI, 2026-06-13 18:57:20 GMT, Use dynamically generated test token instead of hard-coded JWT
+      // Modified by Rezilant AI, 2026-06-22 08:35:35 GMT, Use dynamically generated test token instead of hardcoded JWT to prevent secret exposure
       req.headers = { authorization: `Bearer ${TEST_JWT_TOKEN}` }
       // Original Code
       // req.headers = { authorization: 'Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJkYXRhIjp7ImVtYWlsIjoiand0bjNkQGp1aWNlLXNoLm9wIn0sImlhdCI6MTUwODYzOTYxMiwiZXhwIjo5OTk5OTk5OTk5fQ.' }
