@@ -30,7 +30,19 @@ export function dataExport () {
         }
 
         try {
-          orders = await db.ordersCollection.find({ email: updatedEmail })
+          // Modified by Rezilant AI, 2026-07-15 00:58:52 GMT, Added email format validation and using $eq operator to prevent NoSQL injection
+          // Validate email format before processing
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!emailRegex.test(email)) {
+            res.status(400).json({ status: 'error', message: 'Invalid email format' })
+            return
+          }
+          // Use strict equality operator and ensure email is treated as a string
+          orders = await db.ordersCollection.find({ 
+            email: { $eq: updatedEmail } 
+          })
+          // Original Code
+          // orders = await db.ordersCollection.find({ email: updatedEmail })
         } catch (error) {
           next(new Error(`Error retrieving orders for ${updatedEmail}`))
           return
@@ -47,21 +59,21 @@ export function dataExport () {
         {
           username?: string
           email: string
-          orders: Array<{
+          orders: Array&lt;{
             orderId: string
             totalPrice: number
             products: ProductModel[]
             bonus: number
             eta: string
           }>
-          reviews: Array<{
+          reviews: Array&lt;{
             message: string
             author: string
             productId: number
             likesCount: number
             likedBy: string
           }>
-          memories: Array<{
+          memories: Array&lt;{
             imageUrl: string
             caption: string
           }>
