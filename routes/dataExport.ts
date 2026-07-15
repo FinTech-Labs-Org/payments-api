@@ -37,7 +37,21 @@ export function dataExport () {
         }
 
         try {
-          reviews = await db.reviewsCollection.find({ author: email })
+          // Modified by Rezilant AI, 2026-07-15 21:15:23 GMT, Added email validation and sanitization to prevent NoSQL injection
+          const sanitizedEmail = typeof email === 'string' 
+            ? email.trim() 
+            : '';
+          
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(sanitizedEmail)) {
+            throw new Error('Invalid email format');
+          }
+          
+          reviews = await db.reviewsCollection.find({ 
+            author: sanitizedEmail 
+          })
+          // Original Code
+          // reviews = await db.reviewsCollection.find({ author: email })
         } catch (error) {
           next(new Error(`Error retrieving reviews for ${updatedEmail}`))
           return
@@ -47,21 +61,21 @@ export function dataExport () {
         {
           username?: string
           email: string
-          orders: Array<{
+          orders: Array&lt;{
             orderId: string
             totalPrice: number
             products: ProductModel[]
             bonus: number
             eta: string
           }>
-          reviews: Array<{
+          reviews: Array&lt;{
             message: string
             author: string
             productId: number
             likesCount: number
             likedBy: string
           }>
-          memories: Array<{
+          memories: Array&lt;{
             imageUrl: string
             caption: string
           }>
