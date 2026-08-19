@@ -23,7 +23,7 @@ export function likeProductReviews () {
     }
 
     try {
-      // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Added ObjectId validation to prevent NoSQL injection
+      // Modified by Rezilant AI, 2026-08-19 17:05:02 GMT, Added ObjectId validation to prevent NoSQL injection
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid ID format' })
       }
@@ -41,7 +41,7 @@ export function likeProductReviews () {
         return res.status(403).json({ error: 'Not allowed' })
       }
 
-      // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
+      // Modified by Rezilant AI, 2026-08-19 17:05:02 GMT, Converted id to ObjectId to prevent NoSQL injection
       await db.reviewsCollection.update(
         { _id: new ObjectId(id) },
         { $inc: { likesCount: 1 } }
@@ -55,7 +55,7 @@ export function likeProductReviews () {
       // Artificial wait for timing attack challenge
       await sleep(150)
       try {
-        // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
+        // Modified by Rezilant AI, 2026-08-19 17:05:02 GMT, Converted id to ObjectId to prevent NoSQL injection
         const updatedReview: Review = await db.reviewsCollection.findOne({ _id: new ObjectId(id) })
         // Original Code
         // const updatedReview: Review = await db.reviewsCollection.findOne({ _id: id })
@@ -65,7 +65,7 @@ export function likeProductReviews () {
         const count = updatedLikedBy.filter(email => email === user.data.email).length
         challengeUtils.solveIf(challenges.timingAttackChallenge, () => count > 2)
 
-        // Modified by Rezilant AI, 2026-06-13 18:16:26 GMT, Converted id to ObjectId to prevent NoSQL injection
+        // Modified by Rezilant AI, 2026-08-19 17:05:02 GMT, Converted id to ObjectId to prevent NoSQL injection
         const result = await db.reviewsCollection.update(
           { _id: new ObjectId(id) },
           { $set: { likedBy: updatedLikedBy } }
