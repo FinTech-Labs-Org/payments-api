@@ -14,7 +14,10 @@
 
     <button mat-button routerLink="/search" class="buttons nav-home-button" aria-label="Back to homepage">
       <div id="homeButton">
-        <img [src]="logoSrc" class="logo" alt={{applicationName}}>
+        <!-- Modified by Rezilant AI, 2026-08-19 17:07:21 GMT, Fixed XSS vulnerability by using Angular property binding for alt attribute -->
+        <img [src]="logoSrc" class="logo" [alt]="applicationName">
+        <!-- Original Code -->
+        <!-- <img [src]="logoSrc" class="logo" alt={{applicationName}}> -->
         <span class="hide-lt-sm app-name"> {{applicationName}} </span>
       </div>
     </button>
