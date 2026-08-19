@@ -15,7 +15,10 @@ export function trackOrder () {
     const id = !utils.isChallengeEnabled(challenges.reflectedXssChallenge) ? String(req.params.id).replace(/[^\w-]+/g, '') : utils.trunc(req.params.id, 60)
 
     challengeUtils.solveIf(challenges.reflectedXssChallenge, () => { return utils.contains(id, '<iframe src="javascript:alert(`xss`)">') })
-    db.ordersCollection.find({ $where: `this.orderId === '${id}'` }).then((order: any) => {
+    // Modified by Rezilant AI, 2026-08-19 17:06:11 GMT, Fixed NoSQL injection by replacing $where operator with standard query object
+    db.ordersCollection.find({ orderId: id }).then((order: any) => {
+    // Original Code
+    // db.ordersCollection.find({ $where: `this.orderId === '${id}'` }).then((order: any) => {
       const result = utils.queryResultToJson(order)
       challengeUtils.solveIf(challenges.noSqlOrdersChallenge, () => { return result.data.length > 1 })
       if (result.data[0] === undefined) {
