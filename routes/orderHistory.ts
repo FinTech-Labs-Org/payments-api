@@ -13,7 +13,16 @@ export function orderHistory () {
     const loggedInUser = security.authenticatedUsers.get(req.headers?.authorization?.replace('Bearer ', ''))
     if (loggedInUser?.data?.email && loggedInUser.data.id) {
       const email = loggedInUser.data.email
-      const updatedEmail = email.replace(/[aeiou]/gi, '*')
+      // Modified by Rezilant AI, 2026-06-13 17:26:36 GMT, Added email validation and sanitization to prevent NoSQL injection
+      // Validate email is a string and in proper format to prevent NoSQL operator injection
+      if (typeof email !== 'string' || !email.includes('@')) {
+        return res.status(400).json({ status: 'error', message: 'Invalid email format' })
+      }
+      const sanitizedEmail = email.trim().toLowerCase()
+      // Original Code
+      // const updatedEmail = email.replace(/[aeiou]/gi, '*')
+      // const order = await ordersCollection.find({ email: updatedEmail })
+      const updatedEmail = sanitizedEmail.replace(/[aeiou]/gi, '*')
       const order = await ordersCollection.find({ email: updatedEmail })
       res.status(200).json({ status: 'success', data: order })
     } else {
