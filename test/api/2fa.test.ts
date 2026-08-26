@@ -54,7 +54,7 @@ void describe('/rest/2fa/verify', () => {
     assert.equal(typeof res.body.authentication.token, 'string')
     assert.equal(typeof res.body.authentication.umail, 'string')
     assert.equal(typeof res.body.authentication.bid, 'number')
-    assert.equal(res.body.authentication.umail, `wurstbrot@${config.get<string>('application.domain')}`)
+    assert.equal(res.body.authentication.umail, `wurstbrot@${config.get&lt;string>('application.domain')}`)
   })
 
   void it('POST should fail if a invalid totp token is used', async () => {
@@ -77,10 +77,16 @@ void describe('/rest/2fa/verify', () => {
   })
 
   void it('POST should fail if a unsigned tmp token is used', async () => {
+    // Modified by Rezilant AI, 2026-08-26 17:26:36 GMT, Replaced hard-coded JWT key with environment variable for security
+    // Original Code
+    // const tmpTokenWurstbrot = jwt.sign({
+    //   userId: 10,
+    //   type: 'password_valid_needs_second_factor_token'
+    // }, 'this_surly_isnt_the_right_key')
     const tmpTokenWurstbrot = jwt.sign({
       userId: 10,
       type: 'password_valid_needs_second_factor_token'
-    }, 'this_surly_isnt_the_right_key')
+    }, process.env.JWT_SECRET_KEY || '')
 
     const totpToken = generateSync({ secret: 'IFTXE3SPOEYVURT2MRYGI52TKJ4HC3KH' })
 
@@ -99,7 +105,7 @@ void describe('/rest/2fa/verify', () => {
 void describe('/rest/2fa/status', () => {
   void it('GET should indicate 2fa is setup for 2fa enabled users', async () => {
     const { token } = await login(app, {
-      email: `wurstbrot@${config.get<string>('application.domain')}`,
+      email: `wurstbrot@${config.get&lt;string>('application.domain')}`,
       password: 'EinBelegtesBrotMitSchinkenSCHINKEN!',
       totpSecret: 'IFTXE3SPOEYVURT2MRYGI52TKJ4HC3KH'
     })
@@ -114,7 +120,7 @@ void describe('/rest/2fa/status', () => {
 
   void it('GET should indicate 2fa is not setup for users with 2fa disabled', async () => {
     const { token } = await login(app, {
-      email: `J12934@${config.get<string>('application.domain')}`,
+      email: `J12934@${config.get&lt;string>('application.domain')}`,
       password: '0Y8rMnww$*9VFYE§59-!Fg1L6t&6lB'
     })
 
@@ -127,7 +133,7 @@ void describe('/rest/2fa/status', () => {
     assert.equal(typeof res.body.email, 'string')
     assert.equal(typeof res.body.setupToken, 'string')
     assert.equal(res.body.setup, false)
-    assert.equal(res.body.email, `J12934@${config.get<string>('application.domain')}`)
+    assert.equal(res.body.email, `J12934@${config.get&lt;string>('application.domain')}`)
   })
 
   void it('GET should return 401 when not logged in', async () => {
@@ -249,7 +255,7 @@ void describe('/rest/2fa/setup', () => {
   })
 
   void it('POST should fail if the account has already set up 2fa', async () => {
-    const email = `wurstbrot@${config.get<string>('application.domain')}`
+    const email = `wurstbrot@${config.get&lt;string>('application.domain')}`
     const password = 'EinBelegtesBrotMitSchinkenSCHINKEN!'
     const totpSecret = 'IFTXE3SPOEYVURT2MRYGI52TKJ4HC3KH'
 
